@@ -12,6 +12,8 @@ import (
 	"strings"
 )
 
+//Козлов Евгений
+
 var (
 	rdb *redis.Client
 	ctx = context.Background()
@@ -32,8 +34,6 @@ func init() {
 
 }
 
-//Short URL program
-
 func main() {
 
 	fmt.Println("Starting application")
@@ -46,11 +46,13 @@ func main() {
 
 }
 
+// handle функция для получения url, который надо сократить
 func shortLinkHandle(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	//получаю url key
 	url := r.URL.Query().Get("url")
 	if url == "" {
 		http.Error(w, "URL parameter is missing", http.StatusBadRequest)
@@ -73,7 +75,7 @@ func shortLinkHandle(w http.ResponseWriter, r *http.Request) {
 
 }
 func generateShortCode(url string) string {
-	//добавляем переменную, которая исключит коллизии
+	//добавляем переменную, которая исключит коллизии, т.к. я срезаю код sha256
 	salt := 0
 	for {
 		hash := sha256.Sum256([]byte(fmt.Sprintf("%s%d", url, salt)))
@@ -93,6 +95,7 @@ func generateShortCode(url string) string {
 	}
 }
 
+// хэндлер для обработки редиректа
 func handleRedirect(w http.ResponseWriter, r *http.Request) {
 	shortCode := strings.TrimPrefix(r.URL.Path, "/s/")
 
